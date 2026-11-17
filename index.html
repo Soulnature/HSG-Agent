@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MAS-Heart: Multi-Agent System for Zero-GT Cardiac MRI &amp; CT Segmentation Repair — 21 Real-MRI Cases, 5-Step Discrete Operators, Surgical Fine-Refinement &amp; 2D+T Cine Showcase." />
+  <meta property="og:title" content="MAS-Heart — Clinical Cardiac MRI Multi-Agent Repair Showcase" />
+  <meta property="og:description" content="Interactive 21-case PACS MRI workstation (&lt;mri-cine-viewer&gt; &amp; NiiVue WebGL): Major Topological Rescues (+49.1% Dice), Sub-Pixel Surgical Fine-Refinement, and 2D+T Beating-Heart Cine." />
+  <meta property="og:url" content="https://soulnature.github.io/HSG-Agent/" />
+  <meta property="og:image" content="https://soulnature.github.io/HSG-Agent/animations/anim1_pat335_end_to_end_pipeline.gif" />
+  <title>MAS-Heart — 21-Case Real-MRI Multi-Agent Repair &amp; Surgical Fine-Refinement Showcase (&lt;mri-cine-viewer&gt; &amp; NiiVue)</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.tailwindcss.com';document.head.appendChild(s);"></script>
+  <script src="https://unpkg.com/@niivue/niivue@0.46.0/dist/index.umd.js" async></script>
+  <script src="showcase_data.js"></script>
+</head>
+<body class="bg-[var(--background,#0b1120)] text-[var(--foreground,#f1f5f9)] antialiased selection:bg-emerald-500/30">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+
+    <!-- HERO HEADER -->
+    <header class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-5 sm:p-6 space-y-4">
+      <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+        <span class="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">21 Curated Real-MRI Cases (5 Real 4D Cine)</span>
+        <span class="px-2.5 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">10 Major Rescues (+7.9%~+49.1%)</span>
+        <span class="px-2.5 py-1 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30">9 Surgical Fine-Refinements (0.85~0.91 &rarr; 0.90~0.942)</span>
+        <span class="px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30">&lt;mri-cine-viewer&gt; PACS + @niivue/niivue NIfTI</span>
+      </div>
+
+      <div class="space-y-1.5">
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">
+          MAS-Heart: Clinical Cardiac MRI Workstation — Major Topological Rescue, Surgical Fine-Refinement &amp; 2D+T Cine Showcase
+        </h1>
+        <p class="text-xs sm:text-sm text-[var(--muted-foreground,#94a3b8)] max-w-5xl">
+          Interactive end-to-end walkthrough from <strong>Raw Cardiac MRI Input</strong> &rarr; <strong>Two-Tier Funnel Triage</strong> (<code>Core-4 [R1/R3/R5/R6] + Phys-1..5</code> <code>8.4 ms</code> fast-pass lock + VLM <code>TriageAgent</code>) &rarr; <strong>5-Step Zero-SAM Discrete Operator Repair (Op 1..5)</strong> &rarr; <strong><code>VerifierAgent</code> 19-Feature <i>S</i><sub>v2</sub> Gate</strong> &rarr; <strong>2D+T Beating-Heart Output</strong>. Rescues catastrophic topological collapse (up to <code>+49.08%</code> Dice), performs <strong>170–350 px surgical sub-pixel polish on high-baseline (<code>0.88–0.91</code>) masks (pushing Dice to <code>0.942</code> &amp; slashing HD95 by 82%)</strong>, and preserves clean slices with <code>0 px</code> modified.
+        </p>
+      </div>
+
+      <!-- KPI STRIP -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-1">
+        <div class="rounded-xl p-3 border border-[var(--border,#1e293b)] bg-[var(--background,#0b1120)]">
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">M&amp;Ms-2 Safety (n=34 NF)</div>
+          <div class="text-base sm:text-lg font-bold text-emerald-400">34 / 34 Imp · 0 Deg</div>
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">0.8490 &rarr; 0.8858 (+3.68%)</div>
+        </div>
+        <div class="rounded-xl p-3 border border-[var(--border,#1e293b)] bg-[var(--background,#0b1120)]">
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">Peak Topological Rescue</div>
+          <div class="text-base sm:text-lg font-bold text-amber-400">+49.08% Dice</div>
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">Pat 335: 0.3729 &rarr; 0.8637</div>
+        </div>
+        <div class="rounded-xl p-3 border border-[var(--border,#1e293b)] bg-[var(--background,#0b1120)]">
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">Surgical Fine-Refinement</div>
+          <div class="text-base sm:text-lg font-bold text-sky-400">0.906 &rarr; 0.941</div>
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">Only 170–244 px · HD95 1.8px</div>
+        </div>
+        <div class="rounded-xl p-3 border border-[var(--border,#1e293b)] bg-[var(--background,#0b1120)]">
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">5-CMR Macro Full Dice</div>
+          <div class="text-base sm:text-lg font-bold text-emerald-400">0.8271 &rarr; 0.8656</div>
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">+3.85% (N=636, 100% &beta;0=1)</div>
+        </div>
+        <div class="rounded-xl p-3 border border-[var(--border,#1e293b)] bg-[var(--background,#0b1120)] col-span-2 sm:col-span-1">
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">Clinical LVEF &amp; Cross-Modality</div>
+          <div class="text-base sm:text-lg font-bold text-purple-400">MAE -47.4% · 98.8%</div>
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">6 Benchmarks (N = 736)</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CASE SELECTOR WITH CATEGORY FILTER TABS -->
+    <section class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-4 space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-1.5 text-xs">
+          <span class="font-bold uppercase tracking-wider text-[var(--muted-foreground,#94a3b8)] mr-1">Case Category Filter:</span>
+          <button id="fltAll" onclick="setCategoryFilter('all')" class="px-3 py-1 rounded-lg font-bold transition"></button>
+          <button id="fltMajor" onclick="setCategoryFilter('major')" class="px-3 py-1 rounded-lg font-bold transition"></button>
+          <button id="fltFine" onclick="setCategoryFilter('fine')" class="px-3 py-1 rounded-lg font-bold transition"></button>
+          <button id="fltClean" onclick="setCategoryFilter('clean')" class="px-3 py-1 rounded-lg font-bold transition"></button>
+        </div>
+        <div id="caseSubtitle" class="text-xs font-mono text-emerald-400"></div>
+      </div>
+
+      <div id="casePills" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 max-h-[248px] overflow-y-auto pr-1"></div>
+      <div id="clinicalNoteBar" class="text-xs px-3 py-2 rounded-lg bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] text-[var(--muted-foreground,#94a3b8)]"></div>
+    </section>
+
+    <!-- GLOBAL PACS MRI WEB COMPONENT TOOLBAR -->
+    <section class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="font-bold uppercase tracking-wider text-sky-400">&lt;mri-cine-viewer&gt; Layer Controls:</span>
+        <div class="flex items-center rounded-lg border border-[var(--border,#1e293b)] overflow-hidden">
+          <button id="btnOvFill" onclick="setGlobalOverlay('fill')" class="px-2.5 py-1 font-semibold bg-emerald-600 text-white">Fill + Contour</button>
+          <button id="btnOvContour" onclick="setGlobalOverlay('contour')" class="px-2.5 py-1 font-semibold bg-[var(--background,#0b1120)]">Contour Only</button>
+          <button id="btnOvRaw" onclick="setGlobalOverlay('raw')" class="px-2.5 py-1 font-semibold bg-[var(--background,#0b1120)]">Pure Raw MRI</button>
+        </div>
+        <label class="flex items-center gap-1.5 ml-1">
+          <span class="text-[var(--muted-foreground,#94a3b8)]">Mask &alpha;:</span>
+          <input id="rngGlobalAlpha" type="range" min="0" max="80" value="38" oninput="setGlobalAlpha(this.value)" class="w-20 accent-emerald-500" />
+          <span id="lblGlobalAlpha" class="font-mono w-8">38%</span>
+        </label>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="flex items-center gap-1.5">
+          <span class="text-[var(--muted-foreground,#94a3b8)]">DICOM W:</span>
+          <input id="rngWinW" type="range" min="40" max="360" value="235" oninput="setGlobalWL()" class="w-20 accent-sky-500" />
+          <span id="lblWinW" class="font-mono w-7">235</span>
+        </label>
+        <label class="flex items-center gap-1.5">
+          <span class="text-[var(--muted-foreground,#94a3b8)]">L:</span>
+          <input id="rngWinL" type="range" min="20" max="230" value="118" oninput="setGlobalWL()" class="w-20 accent-sky-500" />
+          <span id="lblWinL" class="font-mono w-7">118</span>
+        </label>
+        <button onclick="resetPacsView()" class="px-2.5 py-1 rounded-lg border border-[var(--border,#1e293b)] hover:border-sky-400 font-mono">Reset W/L &amp; 1:1</button>
+      </div>
+    </section>
+
+    <!-- 5 MODE PAGES / TABS -->
+    <div class="flex flex-wrap items-center gap-2 border-b border-[var(--border,#1e293b)] pb-2">
+      <button id="tabBtnStep" onclick="switchTab('step')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition">
+        1. 5-Step Operator Workstation (&lt;mri-cine-viewer&gt;)
+      </button>
+      <button id="tabBtnFine" onclick="switchTab('fine')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition">
+        2. Surgical Fine-Refinement Gallery (9 Micro-Polish Cases)
+      </button>
+      <button id="tabBtnCine" onclick="switchTab('cine')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition">
+        3. 2D+T Beating-Heart Cine (&lt;mri-cine-viewer&gt;)
+      </button>
+      <button id="tabBtnNii" onclick="switchTab('nii')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition">
+        4. WebGL NIfTI Multi-Planar &amp; M-Mode (NiiVue)
+      </button>
+      <button id="tabBtnGif" onclick="switchTab('gif')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition">
+        5. Animated GIFs &amp; 6-Dataset Benchmark
+      </button>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: STEP-BY-STEP OPERATOR REPAIR (<mri-cine-viewer>)               -->
+    <!-- ===================================================================== -->
+    <section id="panelStep" class="space-y-4">
+      <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="btnPlayStep" onclick="toggleStepPlay()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+              &#9208; Pause Auto-Play
+            </button>
+            <button onclick="prevStep()" class="px-2.5 py-1.5 rounded-lg border border-[var(--border,#1e293b)] text-xs font-semibold hover:bg-emerald-500/10">&larr; Prev</button>
+            <button onclick="nextStep()" class="px-2.5 py-1.5 rounded-lg border border-[var(--border,#1e293b)] text-xs font-semibold hover:bg-emerald-500/10">Next &rarr;</button>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 text-xs">
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="chkDelta" checked onchange="renderStepView()" class="accent-emerald-500" />
+              <span>Highlight Step Pixel Deltas (<strong class="text-amber-400">Gold +Added</strong> / <strong class="text-fuchsia-400">Magenta -Purged</strong>)</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="chkGT" checked onchange="renderStepView()" class="accent-emerald-500" />
+              <span>Show Dashed White GT Contour</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer">
+              <input type="checkbox" id="chkLCC" onchange="renderStepView()" class="accent-rose-500" />
+              <span>Compare Curtain Left vs. Blind LCC</span>
+            </label>
+          </div>
+        </div>
+        <div id="pipelineNodes" class="grid grid-cols-2 sm:grid-cols-7 gap-2"></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-3 flex flex-col items-center space-y-2">
+            <div id="lblCanvasActive" class="text-xs font-bold text-emerald-400 text-center">Active Repair Stage</div>
+            <mri-cine-viewer id="mvStepMain" sync-group="step-pacs" size="252"></mri-cine-viewer>
+            <div class="text-xs text-[var(--muted-foreground,#94a3b8)] text-center">
+              <span class="text-sky-400 font-semibold">■ RV</span> · <span class="text-emerald-400 font-semibold">■ Myo</span> · <span class="text-rose-400 font-semibold">■ LV</span> · <span class="text-amber-400 font-semibold">■ +Op</span>
+            </div>
+          </div>
+
+          <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-3 flex flex-col items-center space-y-2">
+            <div id="lblZoomTitle" class="text-xs font-bold text-amber-400 text-center">Local Defect ROI Zoom (&lt;mri-cine-viewer&gt;)</div>
+            <mri-cine-viewer id="mvStepZoom" sync-group="step-pacs" size="252" lock-roi="true"></mri-cine-viewer>
+            <div id="lblDeltaPixels" class="text-xs font-mono text-amber-400 text-center">+0 Added | -0 Purged</div>
+          </div>
+
+          <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-3 flex flex-col items-center space-y-2">
+            <div id="lblSplitTitle" class="text-xs font-bold text-sky-400 text-center">Split Curtain: Base (L) vs. Active (R)</div>
+            <mri-cine-viewer id="mvStepSplit" sync-group="step-pacs" size="252"></mri-cine-viewer>
+            <input id="rngSplit" type="range" min="5" max="95" value="50" oninput="renderStepView()" class="w-full accent-sky-500" />
+          </div>
+        </div>
+
+        <div class="lg:col-span-4 bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-4 flex flex-col justify-between space-y-3">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Executed Operator Trace</span>
+              <span id="badgeStepCode" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-mono font-bold">Op 1</span>
+            </div>
+            <div id="boxOpCall" class="p-2.5 rounded-xl bg-[var(--background,#0b1120)] border border-emerald-500/40 font-mono text-xs text-emerald-400 break-words"></div>
+            <p id="boxStepDesc" class="text-xs text-[var(--muted-foreground,#94a3b8)] leading-relaxed"></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)]">
+              <div class="text-[var(--muted-foreground,#94a3b8)]">Macro Dice</div>
+              <div id="kpiDice" class="text-base font-bold font-mono text-emerald-400">—</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)]">
+              <div class="text-[var(--muted-foreground,#94a3b8)]">HD95 (px &darr;)</div>
+              <div id="kpiHD95" class="text-base font-bold font-mono text-sky-400">—</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)]">
+              <div class="text-[var(--muted-foreground,#94a3b8)]">Myo Betti-0 (CC)</div>
+              <div id="kpiCC" class="text-base font-bold font-mono">—</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)]">
+              <div class="text-[var(--muted-foreground,#94a3b8)]">RV-LV Leak / Edit</div>
+              <div id="kpiLeak" class="text-base font-bold font-mono">—</div>
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-xs font-semibold text-[var(--muted-foreground,#94a3b8)]">Stepwise Dice Trajectory (S0 &rarr; Op 1..5) vs. LCC</div>
+            <canvas id="cvDiceTraj" width="340" height="105" class="w-full h-[105px] rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)]"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: DEDICATED SURGICAL FINE-REFINEMENT GALLERY PAGE                -->
+    <!-- ===================================================================== -->
+    <section id="panelFine" class="hidden space-y-4">
+      <div class="bg-[var(--card,#111827)] border border-sky-500/40 rounded-2xl p-5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="space-y-1">
+            <h2 class="text-base sm:text-lg font-bold text-sky-400">
+              Surgical Fine-Refinement Gallery — Sub-Pixel Contour Polish &amp; Micro-Defect Suturing on High-Baseline Masks
+            </h2>
+            <p class="text-xs text-[var(--muted-foreground,#94a3b8)] max-w-4xl">
+              Showcases <strong>9 clinical slices with high upstream Dice (<code>0.841 – 0.914</code>)</strong> that still suffer from <strong>hairline apical gaps, 3–21 px septal pinhole leaks, distal artifact islands, or jagged scar rims</strong>. MAS-Heart modifies only <code>170 – 793</code> boundary pixels (leaving clean tissue untouched), elevating Dice to <code>0.900 – 0.942</code> and reducing HD95 by up to <code>82%</code>.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <button id="btnFineBlink" onclick="toggleFineBlink()" class="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold transition">
+              &#9208; Auto-Blink: Polished S5 (+Diff)
+            </button>
+            <button onclick="setFineStageManual('S0')" class="px-2.5 py-1.5 rounded-lg border border-[var(--border,#1e293b)] font-semibold hover:border-rose-400">Lock Before (S0)</button>
+            <button onclick="setFineStageManual('S5')" class="px-2.5 py-1.5 rounded-lg border border-[var(--border,#1e293b)] font-semibold hover:border-emerald-400">Lock Polished (S5)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9-Card Fine-Refinement Matrix (Each Card = Real MRI Full + 3.2x Surgical Micro-ROI <mri-cine-viewer>) -->
+      <div id="fineGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: 2D+T BEATING-HEART CINE THEATRE (<mri-cine-viewer>)            -->
+    <!-- ===================================================================== -->
+    <section id="panelCine" class="hidden space-y-4">
+      <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-4 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-3">
+            <button id="btnPlayCine" onclick="toggleCinePlay()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+              &#9208; Pause 2D+T Cine
+            </button>
+            <span id="lblCineType" class="text-xs font-semibold text-sky-400"></span>
+            <span id="lblCineFrame" class="px-2.5 py-1 rounded bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] font-mono text-xs">Frame 01/20 (ED)</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <label class="flex items-center gap-2">
+              <span class="text-[var(--muted-foreground,#94a3b8)]">Cine Speed</span>
+              <input id="rngCineFps" type="range" min="3" max="20" value="10" oninput="updateCineFps()" class="accent-emerald-500" />
+              <span id="lblCineFps" class="font-mono">10 fps</span>
+            </label>
+          </div>
+        </div>
+
+        <input id="rngCineFrame" type="range" min="0" max="19" value="0" oninput="scrubCineFrame(this.value)" class="w-full accent-emerald-500" />
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+          <div class="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] rounded-xl p-3 flex flex-col items-center space-y-1.5">
+              <div class="text-xs font-bold text-[var(--muted-foreground,#94a3b8)]">1. Raw 2D+T Cardiac MRI</div>
+              <mri-cine-viewer id="mvCineRaw" sync-group="cine-pacs" size="236" force-raw="true"></mri-cine-viewer>
+              <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">Unlabeled Real Cine MRI</div>
+            </div>
+            <div class="bg-[var(--background,#0b1120)] border border-rose-500/40 rounded-xl p-3 flex flex-col items-center space-y-1.5">
+              <div class="text-xs font-bold text-rose-400">2. Upstream Base on Real MRI</div>
+              <mri-cine-viewer id="mvCineBase" sync-group="cine-pacs" size="236"></mri-cine-viewer>
+              <div id="lblCineBaseStat" class="text-xs font-mono text-rose-400">MyoCC: —</div>
+            </div>
+            <div class="bg-[var(--background,#0b1120)] border border-emerald-500/50 rounded-xl p-3 flex flex-col items-center space-y-1.5">
+              <div class="text-xs font-bold text-emerald-400">3. MAS-Heart 2D+T on Real MRI</div>
+              <mri-cine-viewer id="mvCineMas" sync-group="cine-pacs" size="236"></mri-cine-viewer>
+              <div id="lblCineMasStat" class="text-xs font-mono text-emerald-400">MyoCC: 1 (Valid)</div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] rounded-xl p-3.5 space-y-2">
+            <div class="text-xs font-bold text-amber-400">Live 2D+T LV Contraction Curve (%ED Area)</div>
+            <canvas id="cvCineWave" width="340" height="190" class="w-full h-[190px] rounded-lg"></canvas>
+            <div class="text-xs text-[var(--muted-foreground,#94a3b8)]">
+              <span class="font-bold text-emerald-400">Solid Green = MAS-Heart</span> ·
+              <span class="font-bold text-rose-400">Solid Red = Base</span> ·
+              <span class="font-bold">Dashed = Ground Truth</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: NIIVUE WEBGL NIFTI MEDICAL VIEWER COMPONENT (2D+T KYMOGRAPH)   -->
+    <!-- ===================================================================== -->
+    <section id="panelNii" class="hidden space-y-4">
+      <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-bold text-sky-400">
+              @niivue/niivue WebGL NIfTI Medical Component — Spatiotemporal (X, Y, T) Cardiac MRI + M-Mode Kymograph
+            </h2>
+            <p class="text-xs text-[var(--muted-foreground,#94a3b8)]">
+              Builds real-time NIfTI-1 <code>(X &times; Y &times; T)</code> spatiotemporal cardiac volumes + MAS-Heart segmentation overlays across all 21 cases. Click and drag crosshairs to inspect synchronized <strong>2D SAX/LAX planes (X–Y)</strong> and <strong>clinical M-mode wall-motion kymographs (X–T / Y–T)</strong>.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <button onclick="setNiiSliceType('multi')" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold">Multi-Planar + M-Mode</button>
+            <button onclick="setNiiSliceType('axial')" class="px-3 py-1.5 rounded-lg border border-[var(--border,#1e293b)] font-semibold">2D Cardiac Slice</button>
+            <button onclick="setNiiSliceType('render')" class="px-3 py-1.5 rounded-lg border border-[var(--border,#1e293b)] font-semibold">3D Spatiotemporal Render</button>
+            <label class="flex items-center gap-1.5 ml-2">
+              <span>Seg Opacity</span>
+              <input type="range" min="0" max="100" value="50" oninput="setNiiSegOpacity(this.value)" class="w-20 accent-emerald-500" />
+            </label>
+          </div>
+        </div>
+
+        <div id="niivueStatus" class="text-xs font-mono text-emerald-400"></div>
+        <div class="w-full h-[460px] rounded-xl overflow-hidden border border-[var(--border,#1e293b)] bg-black relative">
+          <canvas id="niivueCanvas" class="w-full h-full block"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 5: 5 ANIMATED GIFS GALLERY & UNIFIED 6-COHORT TABLES              -->
+    <!-- ===================================================================== -->
+    <section id="panelGif" class="hidden space-y-6">
+      <div id="gifGallerySection" class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-5 space-y-4">
+        <h2 class="text-base font-bold">5 Publication-Ready Real-MRI Animated Repair GIFs (Including 6-Case Surgical Fine-Refinement Showcase)</h2>
+
+        <!-- Featured New Anim 5: Fine-Refinement -->
+        <div class="p-3.5 rounded-xl bg-[var(--background,#0b1120)] border border-sky-500/50 space-y-2">
+          <div class="text-xs sm:text-sm font-bold text-sky-400">
+            ★ Featured Fine-Refinement GIF: 6 High-Baseline Surgical Polish Cases (Base 0.85–0.91 &rarr; 0.91–0.942; Left: Full Real MRI + Right: 3.0&times; Micro-ROI Zoom)
+          </div>
+          <img src="animations/anim5_surgical_fine_refinement_6cases.gif" alt="6-Case Surgical Fine-Refinement GIF" class="w-full rounded-lg border border-[var(--border,#1e293b)]" />
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="p-3 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] space-y-2">
+            <div class="text-xs font-bold text-emerald-400">1. End-to-End Pipeline &amp; Operator Walkthrough (M&amp;Ms-2 Pat 335, +49.08%)</div>
+            <img src="animations/anim1_pat335_end_to_end_pipeline.gif" alt="Pat 335 Pipeline GIF" class="w-full rounded-lg border border-[var(--border,#1e293b)]" />
+          </div>
+          <div class="p-3 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] space-y-2">
+            <div class="text-xs font-bold text-sky-400">2. Real 30-Frame 4D Cine MRI Repair (ACDC Patient 107, +27.02%)</div>
+            <img src="animations/anim4_acdc107_real30f_2dt_cine.gif" alt="ACDC 107 30f Cine GIF" class="w-full rounded-lg border border-[var(--border,#1e293b)]" />
+          </div>
+          <div class="p-3 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] space-y-2">
+            <div class="text-xs font-bold text-amber-400">3. Synchronized Top-6 Flagship Cases 5-Step Operator Grid</div>
+            <img src="animations/anim3_top6_cases_stepwise_operator_grid.gif" alt="Top 6 Grid GIF" class="w-full rounded-lg border border-[var(--border,#1e293b)]" />
+          </div>
+          <div class="p-3 rounded-xl bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] space-y-2">
+            <div class="text-xs font-bold text-purple-400">4. Multi-Center 2D+T Beating-Heart Cine &amp; Volume Contraction Curves</div>
+            <img src="animations/anim2_2dt_beating_heart_cine_4cases.gif" alt="2D+T 4 Cases GIF" class="w-full rounded-lg border border-[var(--border,#1e293b)]" />
+          </div>
+        </div>
+      </div>
+
+      <!-- UNIFIED 6-BENCHMARK SUMMARY TABLE -->
+      <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] rounded-2xl p-5 space-y-3 overflow-x-auto">
+        <h2 class="text-base font-bold">Unified 6-Dataset Public Benchmark Summary (N = 736 Test Slices, Strictly Only Needs-Fix Modified, 0% Good Modified)</h2>
+        <table class="w-full text-xs text-left border-collapse">
+          <thead>
+            <tr class="border-b border-[var(--border,#1e293b)] text-[var(--muted-foreground,#94a3b8)]">
+              <th class="py-2 pr-3">Cohort &amp; Modality</th>
+              <th class="py-2 px-2">Total / NF</th>
+              <th class="py-2 px-2">Good Modified</th>
+              <th class="py-2 px-2">Full Dice (Base &rarr; MAS)</th>
+              <th class="py-2 px-2">Needs-Fix Dice (&Delta;)</th>
+              <th class="py-2 px-2">HD95 (px &darr;)</th>
+              <th class="py-2 px-2">Struct. Valid</th>
+              <th class="py-2 pl-2">Safety / Key Highlight</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[var(--border,#1e293b)] font-mono">
+            <tr>
+              <td class="py-2 pr-3 font-sans font-bold text-emerald-400">1. M&amp;Ms-2 (LAX 4CH, UNet++)</td>
+              <td class="py-2 px-2">320 / 34</td>
+              <td class="py-2 px-2 text-emerald-400">0 / 286 (0%)</td>
+              <td class="py-2 px-2">0.9155 &rarr; <strong>0.9194</strong></td>
+              <td class="py-2 px-2 text-emerald-400">0.8490 &rarr; <strong>0.8858 (+3.68%)</strong></td>
+              <td class="py-2 px-2">5.34 &rarr; 3.18</td>
+              <td class="py-2 px-2">93.8% &rarr; <strong>100%</strong></td>
+              <td class="py-2 pl-2 font-sans"><strong>34/34 Imp, 0 Deg</strong> · LVEF MAE -47.4%</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 font-sans font-semibold">2. ACDC (Cine SAX, nnU-Net)</td>
+              <td class="py-2 px-2">100 / 35</td>
+              <td class="py-2 px-2 text-emerald-400">0 / 65 (0%)</td>
+              <td class="py-2 px-2">0.8933 &rarr; <strong>0.9094</strong></td>
+              <td class="py-2 px-2 text-emerald-400">0.8486 &rarr; <strong>0.8945 (+4.59%)</strong></td>
+              <td class="py-2 px-2">11.51 &rarr; 5.01</td>
+              <td class="py-2 px-2">90.0% &rarr; <strong>100%</strong></td>
+              <td class="py-2 pl-2 font-sans">32/35 Imp (91.4%) · p = 2.6e-8</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 font-sans font-semibold">3. M&amp;Ms-1 (4-Vendor SAX, nnU-Net)</td>
+              <td class="py-2 px-2">120 / 60</td>
+              <td class="py-2 px-2 text-emerald-400">0 / 60 (0%)</td>
+              <td class="py-2 px-2">0.8416 &rarr; <strong>0.8682</strong></td>
+              <td class="py-2 px-2 text-emerald-400">0.7897 &rarr; <strong>0.8429 (+5.32%)</strong></td>
+              <td class="py-2 px-2">13.97 &rarr; 7.17</td>
+              <td class="py-2 px-2">85.0% &rarr; <strong>100%</strong></td>
+              <td class="py-2 pl-2 font-sans">53/60 Imp · Siemens/Philips/GE/Canon</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 font-sans font-semibold">4. MyoPS-2020 (Multi-Seq Scar CMR)</td>
+              <td class="py-2 px-2">46 / 46</td>
+              <td class="py-2 px-2 text-emerald-400">0 / 0</td>
+              <td class="py-2 px-2">0.7907 &rarr; <strong>0.8317</strong></td>
+              <td class="py-2 px-2 text-emerald-400">0.7907 &rarr; <strong>0.8317 (+4.10%)</strong></td>
+              <td class="py-2 px-2">23.21 &rarr; 17.67</td>
+              <td class="py-2 px-2">76.1% &rarr; <strong>100%</strong></td>
+              <td class="py-2 pl-2 font-sans">Core-4 R3+R6 Scar &amp; C-Arc Rescue</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 font-sans font-semibold">5. EMIDEC (DE-MRI Infarction)</td>
+              <td class="py-2 px-2">50 / 50</td>
+              <td class="py-2 px-2 text-emerald-400">0 / 0</td>
+              <td class="py-2 px-2">0.6945 &rarr; <strong>0.7991</strong></td>
+              <td class="py-2 px-2 text-emerald-400">0.6945 &rarr; <strong>0.7991 (+10.46%)</strong></td>
+              <td class="py-2 px-2">12.05 &rarr; 5.60</td>
+              <td class="py-2 px-2">78.0% &rarr; <strong>100%</strong></td>
+              <td class="py-2 pl-2 font-sans">48/50 Imp (96.0%) · 2-Class Schema</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-3 font-sans font-semibold text-purple-400">6. CAMUS (2CH/4CH Echo, C1=LA)</td>
+              <td class="py-2 px-2">100 / 54</td>
+              <td class="py-2 px-2 text-emerald-400">0 / 46 (0%)</td>
+              <td class="py-2 px-2">0.7531 &rarr; <strong>0.7574</strong></td>
+              <td class="py-2 px-2 text-emerald-400"><strong>+0.43% vs Legacy</strong></td>
+              <td class="py-2 px-2">24.30 &rarr; 19.65</td>
+              <td class="py-2 px-2">0.0% &rarr; <strong>91.0%</strong></td>
+              <td class="py-2 pl-2 font-sans">Autonomous LA Mitral Cap Graph (CT-Ready)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    const PACS_BUS = new EventTarget();
+    const LABEL_NAMES = ['BG', 'RV', 'Myo', 'LV'];
+    const LABEL_RGB = { 1: [56, 189, 248], 2: [16, 185, 129], 3: [248, 113, 113] };
+    let GLOBAL_WIN_W = 235, GLOBAL_WIN_L = 118, GLOBAL_ALPHA = 0.38, GLOBAL_OV_MODE = 'fill';
+
+    class MRICineViewer extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.sz = 252;
+        this.winW = GLOBAL_WIN_W;
+        this.winL = GLOBAL_WIN_L;
+        this.maskAlpha = GLOBAL_ALPHA;
+        this.overlayMode = GLOBAL_OV_MODE;
+        this.zoom = 1.0;
+        this.panX = 0.5;
+        this.panY = 0.5;
+        this.probe = null;
+        this.frame = null;
+        this._offR = document.createElement('canvas');
+        this._offL = document.createElement('canvas');
+      }
+
+      connectedCallback() {
+        this.sz = parseInt(this.getAttribute('size') || '252', 10);
+        this.forceRaw = this.getAttribute('force-raw') === 'true';
+        this.lockRoi = this.getAttribute('lock-roi') === 'true';
+        const group = this.getAttribute('sync-group') || 'default';
+        this.winW = GLOBAL_WIN_W;
+        this.winL = GLOBAL_WIN_L;
+        this.maskAlpha = GLOBAL_ALPHA;
+        this.overlayMode = GLOBAL_OV_MODE;
+
+        this.shadowRoot.innerHTML = `
+          <style>
+            :host { display: inline-block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; user-select: none; }
+            .vp {
+              position: relative;
+              width: ${this.sz}px;
+              height: ${this.sz}px;
+              border-radius: 11px;
+              overflow: hidden;
+              background: #05070b;
+              border: 1px solid rgba(148,163,184,0.28);
+              cursor: crosshair;
+              box-shadow: inset 0 0 20px rgba(0,0,0,0.7);
+            }
+            canvas { width: 100%; height: 100%; display: block; }
+            .hud {
+              position: absolute; inset: 0; pointer-events: none;
+              font-size: ${this.sz < 190 ? '9px' : '10px'}; line-height: 1.22;
+              text-shadow: 0 1px 2px rgba(0,0,0,0.95), 0 0 5px rgba(0,0,0,0.9);
+            }
+            .tl { position: absolute; top: 5px; left: 6px; color: #f8fafc; font-weight: 700; }
+            .tl .sub { color: #94a3b8; font-weight: 500; }
+            .tr { position: absolute; top: 5px; right: 6px; text-align: right; color: #38bdf8; font-weight: 700; }
+            .tr .sub { color: #34d399; }
+            .bl { position: absolute; bottom: 5px; left: 6px; color: #cbd5e1; }
+            .br { position: absolute; bottom: 5px; right: 6px; text-align: right; color: #fbbf24; font-weight: 600; }
+            .ori { position: absolute; color: rgba(226,232,240,0.58); font-weight: 700; font-size: 9px; }
+            .ori-t { top: 4px; left: 50%; transform: translateX(-50%); }
+            .ori-b { bottom: 4px; left: 50%; transform: translateX(-50%); }
+            .ori-l { left: 4px; top: 50%; transform: translateY(-50%); }
+            .ori-r { right: 11px; top: 50%; transform: translateY(-50%); }
+          </style>
+          <div class="vp" id="vp">
+            <canvas id="cv" width="${this.sz}" height="${this.sz}"></canvas>
+            <div class="hud">
+              <div class="tl"><div id="hTL1">MRI</div><div class="sub" id="hTL2"></div></div>
+              <div class="tr"><div id="hTR1"></div><div class="sub" id="hTR2"></div></div>
+              <div class="bl" id="hBL"></div>
+              <div class="br" id="hBR"></div>
+              <div class="ori ori-t" id="oT"></div>
+              <div class="ori ori-b" id="oB"></div>
+              <div class="ori ori-l" id="oL"></div>
+              <div class="ori ori-r" id="oR"></div>
+            </div>
+          </div>
+        `;
+        this._cv = this.shadowRoot.getElementById('cv');
+        this._ctx = this._cv.getContext('2d');
+        const vp = this.shadowRoot.getElementById('vp');
+
+        vp.addEventListener('contextmenu', e => e.preventDefault());
+        vp.addEventListener('mousedown', e => {
+          this._lx = e.clientX; this._ly = e.clientY;
+          if (e.button === 2 || e.shiftKey) this._wlDrag = true;
+          else if (this.frame && this.frame.splitPct != null) {
+            const r = vp.getBoundingClientRect();
+            const pct = Math.min(95, Math.max(5, ((e.clientX - r.left) / r.width) * 100));
+            const rng = document.getElementById('rngSplit');
+            if (rng) { rng.value = Math.round(pct); renderStepView(); }
+            this._splitDrag = true;
+          } else if (this.zoom > 1.01 && !this.lockRoi) {
+            this._panDrag = true;
+          }
+        });
+        window.addEventListener('mouseup', () => { this._wlDrag = false; this._panDrag = false; this._splitDrag = false; });
+
+        vp.addEventListener('mousemove', e => {
+          const r = vp.getBoundingClientRect();
+          const ux = (e.clientX - r.left) / r.width;
+          const uy = (e.clientY - r.top) / r.height;
+          if (this._wlDrag) {
+            const nw = Math.max(40, Math.min(360, GLOBAL_WIN_W + (e.clientX - this._lx) * 1.5));
+            const nl = Math.max(20, Math.min(230, GLOBAL_WIN_L + (e.clientY - this._ly) * 1.2));
+            this._lx = e.clientX; this._ly = e.clientY;
+            document.getElementById('rngWinW').value = Math.round(nw);
+            document.getElementById('rngWinL').value = Math.round(nl);
+            setGlobalWL();
+            return;
+          }
+          if (this._splitDrag && this.frame && this.frame.splitPct != null) {
+            const pct = Math.min(95, Math.max(5, ux * 100));
+            const rng = document.getElementById('rngSplit');
+            if (rng) { rng.value = Math.round(pct); renderStepView(); }
+            return;
+          }
+          if (this._panDrag && !this.lockRoi) {
+            const dx = (e.clientX - this._lx) / (r.width * this.zoom);
+            const dy = (e.clientY - this._ly) / (r.height * this.zoom);
+            this._lx = e.clientX; this._ly = e.clientY;
+            PACS_BUS.dispatchEvent(new CustomEvent('zoom', {
+              detail: { group, zoom: this.zoom, panX: Math.max(0.15, Math.min(0.85, this.panX - dx)), panY: Math.max(0.15, Math.min(0.85, this.panY - dy)) }
+            }));
+            return;
+          }
+          let nx = ux, ny = uy;
+          if (this.lockRoi && this.frame && this.frame.cropRect) {
+            const [rx, ry, rw, rh] = this.frame.cropRect;
+            nx = (rx + ux * rw) / this.frame.w;
+            ny = (ry + uy * rh) / this.frame.h;
+          } else {
+            nx = (ux - 0.5) / this.zoom + this.panX;
+            ny = (uy - 0.5) / this.zoom + this.panY;
+          }
+          PACS_BUS.dispatchEvent(new CustomEvent('probe', { detail: { group, probe: { nx, ny } } }));
+        });
+
+        vp.addEventListener('mouseleave', () => {
+          PACS_BUS.dispatchEvent(new CustomEvent('probe', { detail: { group, probe: null } }));
+        });
+
+        vp.addEventListener('wheel', e => {
+          if (this.lockRoi) return;
+          e.preventDefault();
+          const nz = Math.max(1.0, Math.min(4.0, this.zoom * (e.deltaY < 0 ? 1.18 : 0.85)));
+          PACS_BUS.dispatchEvent(new CustomEvent('zoom', {
+            detail: { group, zoom: nz, panX: nz === 1 ? 0.5 : this.panX, panY: nz === 1 ? 0.5 : this.panY }
+          }));
+        }, { passive: false });
+
+        this._onProbe = ev => { if (ev.detail.group === group) { this.probe = ev.detail.probe; this.render(); } };
+        this._onZoom = ev => {
+          if (ev.detail.group === group && !this.lockRoi) {
+            this.zoom = ev.detail.zoom; this.panX = ev.detail.panX; this.panY = ev.detail.panY; this.render();
+          }
+        };
+        this._onGlobalCfg = () => {
+          this.winW = GLOBAL_WIN_W; this.winL = GLOBAL_WIN_L;
+          this.maskAlpha = GLOBAL_ALPHA; this.overlayMode = GLOBAL_OV_MODE;
+          this.render();
+        };
+        PACS_BUS.addEventListener('probe', this._onProbe);
+        PACS_BUS.addEventListener('zoom', this._onZoom);
+        PACS_BUS.addEventListener('global-cfg', this._onGlobalCfg);
+      }
+
+      disconnectedCallback() {
+        PACS_BUS.removeEventListener('probe', this._onProbe);
+        PACS_BUS.removeEventListener('zoom', this._onZoom);
+        PACS_BUS.removeEventListener('global-cfg', this._onGlobalCfg);
+      }
+
+      _composeToCanvas(targetCv, gray, mask, prevMask, gtMask, w, h, showDelta, showGT) {
+        if (targetCv.width !== w || targetCv.height !== h) { targetCv.width = w; targetCv.height = h; }
+        const ctx = targetCv.getContext('2d');
+        const img = ctx.createImageData(w, h);
+        const dst = img.data;
+        const low = this.winL - this.winW * 0.5;
+        const invW = 255.0 / Math.max(1.0, this.winW);
+        const mode = this.forceRaw ? 'raw' : this.overlayMode;
+        const alpha = mode === 'fill' ? this.maskAlpha : 0.0;
+        const drawSeg = mode !== 'raw';
+
+        for (let y = 0; y < h; y++) {
+          const row = y * w;
+          for (let x = 0; x < w; x++) {
+            const i = row + x;
+            let v = (gray[i] - low) * invW;
+            if (v < 0) v = 0; else if (v > 255) v = 255;
+            let r = v, g = v, b = v;
+            const c = mask ? mask[i] : 0;
+
+            if (drawSeg && c > 0 && LABEL_RGB[c]) {
+              const rgb = LABEL_RGB[c];
+              const edge = (x === 0 || x === w - 1 || y === 0 || y === h - 1 ||
+                mask[i - 1] !== c || mask[i + 1] !== c || mask[i - w] !== c || mask[i + w] !== c);
+              const a = edge ? 0.88 : alpha;
+              r = r * (1 - a) + rgb[0] * a;
+              g = g * (1 - a) + rgb[1] * a;
+              b = b * (1 - a) + rgb[2] * a;
+            }
+            if (drawSeg && showDelta && prevMask) {
+              const pc = prevMask[i];
+              if (c !== pc) {
+                if (c > 0 && pc === 0) { r = r * 0.18 + 251 * 0.82; g = g * 0.18 + 191 * 0.82; b = b * 0.18 + 36 * 0.82; }
+                else if (c === 0 && pc > 0) { r = r * 0.18 + 232 * 0.82; g = g * 0.18 + 121 * 0.82; b = b * 0.18 + 249 * 0.82; }
+                else if (c > 0 && pc > 0) { r = r * 0.22 + 251 * 0.78; g = g * 0.22 + 191 * 0.78; b = b * 0.22 + 36 * 0.78; }
+              }
+            }
+            if (drawSeg && showGT && gtMask) {
+              const gc = gtMask[i];
+              if (gc > 0 && x > 0 && x < w - 1 && y > 0 && y < h - 1) {
+                const ge = (gtMask[i - 1] !== gc || gtMask[i + 1] !== gc || gtMask[i - w] !== gc || gtMask[i + w] !== gc);
+                if (ge && (((x + y) >> 2) & 1) === 0) { r = 248; g = 250; b = 252; }
+              }
+            }
+            const p = i * 4;
+            dst[p] = r; dst[p + 1] = g; dst[p + 2] = b; dst[p + 3] = 255;
+          }
+        }
+        ctx.putImageData(img, 0, 0);
+      }
+
+      setFrame(f) {
+        this.frame = f;
+        this.render();
+      }
+
+      render() {
+        if (!this.frame || !this._ctx) return;
+        const f = this.frame;
+        const { gray, w, h, mask, leftMask, splitPct, prevMask, gtMask, showDelta, showGT, cropRect, roiBox, tl1, tl2, tr1, tr2, brDefault, orient } = f;
+        this._composeToCanvas(this._offR, gray, mask, prevMask, gtMask, w, h, showDelta, showGT);
+
+        const ctx = this._ctx;
+        const S = this.sz;
+        ctx.fillStyle = '#05070b';
+        ctx.fillRect(0, 0, S, S);
+        ctx.imageSmoothingEnabled = !this.lockRoi;
+        ctx.imageSmoothingQuality = 'high';
+
+        let sx = 0, sy = 0, sw = w, sh = h;
+        if (this.lockRoi && cropRect) {
+          [sx, sy, sw, sh] = cropRect;
+        } else {
+          sw = w / this.zoom; sh = h / this.zoom;
+          sx = Math.max(0, Math.min(w - sw, this.panX * w - sw * 0.5));
+          sy = Math.max(0, Math.min(h - sh, this.panY * h - sh * 0.5));
+        }
+
+        ctx.drawImage(this._offR, sx, sy, sw, sh, 0, 0, S, S);
+
+        if (leftMask && splitPct != null) {
+          this._composeToCanvas(this._offL, gray, leftMask, null, gtMask, w, h, false, showGT);
+          const splitX = Math.round(S * (splitPct / 100.0));
+          ctx.save();
+          ctx.beginPath(); ctx.rect(0, 0, splitX, S); ctx.clip();
+          ctx.drawImage(this._offL, sx, sy, sw, sh, 0, 0, S, S);
+          ctx.restore();
+          ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(splitX, 0); ctx.lineTo(splitX, S); ctx.stroke();
+        }
+
+        if (roiBox && !this.lockRoi) {
+          const [rx, ry, rw, rh] = roiBox;
+          ctx.save();
+          ctx.strokeStyle = 'rgba(250, 204, 21, 0.88)';
+          ctx.lineWidth = 1.6;
+          ctx.setLineDash([5, 3]);
+          ctx.strokeRect(((rx - sx) / sw) * S, ((ry - sy) / sh) * S, (rw / sw) * S, (rh / sh) * S);
+          ctx.restore();
+        }
+
+        let brText = brDefault || '';
+        if (this.probe) {
+          const px = Math.round(this.probe.nx * (w - 1));
+          const py = Math.round(this.probe.ny * (h - 1));
+          if (px >= 0 && px < w && py >= 0 && py < h) {
+            const cx = ((this.probe.nx * w - sx) / sw) * S;
+            const cy = ((this.probe.ny * h - sy) / sh) * S;
+            if (cx >= 0 && cx <= S && cy >= 0 && cy <= S) {
+              ctx.save();
+              ctx.strokeStyle = 'rgba(56, 189, 248, 0.82)';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(0, cy); ctx.lineTo(Math.max(0, cx - 6), cy);
+              ctx.moveTo(Math.min(S, cx + 6), cy); ctx.lineTo(S, cy);
+              ctx.moveTo(cx, 0); ctx.lineTo(cx, Math.max(0, cy - 6));
+              ctx.moveTo(cx, Math.min(S, cy + 6)); ctx.lineTo(cx, S);
+              ctx.stroke();
+              ctx.restore();
+            }
+            const idx = py * w + px;
+            brText = `(${px},${py}) I:${gray[idx]} [${LABEL_NAMES[mask ? mask[idx] : 0]}]`;
+          }
+        }
+
+        this.shadowRoot.getElementById('hTL1').textContent = tl1 || 'MRI';
+        this.shadowRoot.getElementById('hTL2').textContent = tl2 || '';
+        this.shadowRoot.getElementById('hTR1').textContent = tr1 || '';
+        this.shadowRoot.getElementById('hTR2').textContent = this.probe ? '' : (tr2 || '');
+        this.shadowRoot.getElementById('hBL').textContent = this.sz < 185 ? '' : `W:${this.winW} L:${this.winL}${!this.lockRoi && this.zoom > 1.02 ? ' · ' + this.zoom.toFixed(1) + 'x' : ''}`;
+        this.shadowRoot.getElementById('hBR').textContent = brText;
+        if (orient && orient.length === 4 && this.sz >= 185) {
+          this.shadowRoot.getElementById('oT').textContent = orient[0];
+          this.shadowRoot.getElementById('oB').textContent = orient[1];
+          this.shadowRoot.getElementById('oL').textContent = orient[2];
+          this.shadowRoot.getElementById('oR').textContent = orient[3];
+        }
+      }
+    }
+    customElements.define('mri-cine-viewer', MRICineViewer);
+
+    const DATA = window.MAS_HEART_SHOWCASE_DATA || { cases: [] };
+    let curCaseIdx = 0, curStepIdx = 0, activeTab = 'step', categoryFilter = 'all';
+    let stepPlaying = true, cinePlaying = true, curCineFrame = 0, cineFps = 10;
+    let fineBlinking = true, fineShowAfter = true;
+    let stepTimer = null, cineTimer = null, fineTimer = null;
+    const decodedCases = {};
+
+    function getCaseOrient(c) {
+      return (c.title.includes('4CH') || c.title.includes('LAX') || c.stem.includes('4c'))
+        ? ['S', 'I', 'R', 'L'] : ['A', 'P', 'R', 'L'];
+    }
+
+    function decodeImageToGrayOrMask(src, size, smooth = false) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          const cv = document.createElement('canvas');
+          cv.width = size; cv.height = size;
+          const ctx = cv.getContext('2d');
+          ctx.imageSmoothingEnabled = smooth;
+          ctx.drawImage(img, 0, 0, size, size);
+          const id = ctx.getImageData(0, 0, size, size).data;
+          const out = new Uint8Array(size * size);
+          for (let i = 0; i < size * size; i++) out[i] = id[i * 4];
+          resolve(out);
+        };
+        img.src = src;
+      });
+    }
+
+    async function ensureCaseDecoded(cIdx, needCine = true) {
+      const c = DATA.cases[cIdx];
+      if (!c) return null;
+      const existing = decodedCases[c.id];
+      if (existing && (!needCine || existing.cineLoaded)) return existing;
+
+      let mri = existing ? existing.mri : await decodeImageToGrayOrMask(c.mriPng, 160, true);
+      let masks = existing ? existing.masks : null;
+      if (!masks) {
+        masks = {};
+        for (const [k, b64] of Object.entries(c.masksPng)) {
+          masks[k] = await decodeImageToGrayOrMask(b64, 160, false);
+        }
+      }
+      let cine = existing ? existing.cine : [];
+      let cineLoaded = existing ? existing.cineLoaded : false;
+      if (needCine && !cineLoaded) {
+        cine = [];
+        for (const fr of c.cineFrames) {
+          const [im, ba, ma, gt] = await Promise.all([
+            decodeImageToGrayOrMask(fr.img, 136, true),
+            decodeImageToGrayOrMask(fr.base, 136, false),
+            decodeImageToGrayOrMask(fr.mas, 136, false),
+            decodeImageToGrayOrMask(fr.gt, 136, false),
+          ]);
+          cine.push({ ...fr, imArr: im, baseArr: ba, masArr: ma, gtArr: gt });
+        }
+        cineLoaded = true;
+      }
+      decodedCases[c.id] = { mri, masks, cine, cineLoaded };
+      return decodedCases[c.id];
+    }
+
+    function setGlobalOverlay(mode) {
+      GLOBAL_OV_MODE = mode;
+      ['fill', 'contour', 'raw'].forEach(m => {
+        const btn = document.getElementById('btnOv' + m[0].toUpperCase() + m.slice(1));
+        btn.className = m === mode
+          ? 'px-2.5 py-1 font-semibold bg-emerald-600 text-white'
+          : 'px-2.5 py-1 font-semibold bg-[var(--background,#0b1120)] text-[var(--muted-foreground,#94a3b8)]';
+      });
+      PACS_BUS.dispatchEvent(new CustomEvent('global-cfg'));
+    }
+
+    function setGlobalAlpha(val) {
+      GLOBAL_ALPHA = Number(val) / 100.0;
+      document.getElementById('lblGlobalAlpha').textContent = `${val}%`;
+      PACS_BUS.dispatchEvent(new CustomEvent('global-cfg'));
+    }
+
+    function setGlobalWL() {
+      GLOBAL_WIN_W = Number(document.getElementById('rngWinW').value);
+      GLOBAL_WIN_L = Number(document.getElementById('rngWinL').value);
+      document.getElementById('lblWinW').textContent = GLOBAL_WIN_W;
+      document.getElementById('lblWinL').textContent = GLOBAL_WIN_L;
+      PACS_BUS.dispatchEvent(new CustomEvent('global-cfg'));
+    }
+
+    function resetPacsView() {
+      document.getElementById('rngWinW').value = 235;
+      document.getElementById('rngWinL').value = 118;
+      document.getElementById('rngGlobalAlpha').value = 38;
+      GLOBAL_WIN_W = 235; GLOBAL_WIN_L = 118; GLOBAL_ALPHA = 0.38;
+      document.getElementById('lblWinW').textContent = 235;
+      document.getElementById('lblWinL').textContent = 118;
+      document.getElementById('lblGlobalAlpha').textContent = '38%';
+      setGlobalOverlay('fill');
+      ['step-pacs', 'cine-pacs'].forEach(group => {
+        PACS_BUS.dispatchEvent(new CustomEvent('zoom', { detail: { group, zoom: 1.0, panX: 0.5, panY: 0.5 } }));
+      });
+    }
+
+    function setCategoryFilter(flt) {
+      categoryFilter = flt;
+      renderCasePills();
+      // If current case isn't in the selected filter, jump to the first matching case
+      const curCat = DATA.cases[curCaseIdx]?.category || 'major';
+      if (flt !== 'all' && curCat !== flt) {
+        const firstMatch = DATA.cases.findIndex(c => c.category === flt);
+        if (firstMatch >= 0) selectCase(firstMatch);
+      }
+    }
+
+    function renderCasePills() {
+      const counts = {
+        all: DATA.cases.length,
+        major: DATA.cases.filter(c => c.category === 'major').length,
+        fine: DATA.cases.filter(c => c.category === 'fine').length,
+        clean: DATA.cases.filter(c => c.category === 'clean').length,
+      };
+      const fltMeta = [
+        ['all', 'fltAll', `All Cases (${counts.all})`, 'bg-emerald-600 text-white'],
+        ['major', 'fltMajor', `Major Rescue (${counts.major})`, 'bg-amber-600 text-white'],
+        ['fine', 'fltFine', `Fine Polish (${counts.fine})`, 'bg-sky-600 text-white'],
+        ['clean', 'fltClean', `Clean Fast-Pass (${counts.clean})`, 'bg-purple-600 text-white'],
+      ];
+      fltMeta.forEach(([key, id, txt, actCls]) => {
+        const el = document.getElementById(id);
+        el.textContent = txt;
+        el.className = `px-3 py-1 rounded-lg font-bold transition ${
+          categoryFilter === key ? actCls : 'bg-[var(--background,#0b1120)] border border-[var(--border,#1e293b)] text-[var(--muted-foreground,#94a3b8)] hover:text-white'
+        }`;
+      });
+
+      const box = document.getElementById('casePills');
+      box.innerHTML = '';
+      DATA.cases.forEach((c, idx) => {
+        if (categoryFilter !== 'all' && c.category !== categoryFilter) return;
+        const active = idx === curCaseIdx;
+        const btn = document.createElement('button');
+        btn.onclick = () => selectCase(idx);
+        btn.className = `text-left p-2.5 rounded-xl border transition flex flex-col justify-between gap-1 ${
+          active ? 'border-emerald-500 bg-emerald-500/15 ring-1 ring-emerald-500/50'
+                 : 'border-[var(--border,#1e293b)] bg-[var(--background,#0b1120)] hover:border-emerald-500/50'
+        }`;
+
+        let badgeCls = 'bg-amber-500/20 text-amber-400';
+        let tagTxt = `🔥 +${c.diceGainPct.toFixed(1)}%`;
+        if (c.category === 'fine') {
+          badgeCls = 'bg-sky-500/20 text-sky-400';
+          tagTxt = `🔬 +${c.diceGainPct.toFixed(2)}% · ${c.totalDiffPx}px`;
+        } else if (c.category === 'clean') {
+          badgeCls = 'bg-purple-500/20 text-purple-400';
+          tagTxt = '🛡️ 0 px Clean';
+        }
+        const shortTitle = c.title.replace(/\s*\(.*?\)/, '');
+        btn.innerHTML = `
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-xs font-bold truncate">${shortTitle}</span>
+            <span class="px-1.5 py-0.5 rounded text-xs font-mono font-bold shrink-0 ${badgeCls}">${tagTxt}</span>
+          </div>
+          <div class="flex items-center justify-between text-xs text-[var(--muted-foreground,#94a3b8)]">
+            <span class="truncate">${c.modality}</span>
+            <span class="font-mono shrink-0">${c.diceInit.toFixed(3)}&rarr;${c.diceFinal.toFixed(3)}</span>
+          </div>
+        `;
+        box.appendChild(btn);
+      });
+    }
+
+    function renderPipelineNodes() {
+      const c = DATA.cases[curCaseIdx];
+      if (!c) return;
+      const box = document.getElementById('pipelineNodes');
+      box.innerHTML = '';
+      c.steps.forEach((st, idx) => {
+        const act = idx === curStepIdx, done = idx < curStepIdx;
+        const btn = document.createElement('button');
+        btn.onclick = () => { stepPlaying = false; document.getElementById('btnPlayStep').innerHTML = '&#9654; Auto-Play Repair'; curStepIdx = idx; renderStepView(); };
+        btn.className = `p-2 rounded-xl border text-left transition ${
+          act ? 'border-emerald-400 bg-emerald-500/20 ring-1 ring-emerald-400'
+              : done ? 'border-sky-500/40 bg-sky-500/10'
+              : 'border-[var(--border,#1e293b)] bg-[var(--background,#0b1120)] opacity-80 hover:opacity-100'
+        }`;
+        btn.innerHTML = `
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span class="${act ? 'text-emerald-400' : 'text-[var(--foreground,#f1f5f9)]'}">${st.code}</span>
+            <span class="font-mono text-xs">${st.dice.toFixed(4)}</span>
+          </div>
+          <div class="text-xs text-[var(--muted-foreground,#94a3b8)] truncate mt-0.5">${st.title.replace(/^\d+\.\s*/, '')}</div>
+        `;
+        box.appendChild(btn);
+      });
+    }
+
+    async function renderStepView() {
+      const c = DATA.cases[curCaseIdx];
+      if (!c) return;
+      const dec = await ensureCaseDecoded(curCaseIdx, false);
+      renderPipelineNodes();
+
+      document.getElementById('caseSubtitle').textContent = c.subtitle;
+      document.getElementById('clinicalNoteBar').innerHTML = `<strong class="text-emerald-400">Clinical Rationale:</strong> ${c.clinicalNote}`;
+
+      const st = c.steps[curStepIdx];
+      const prevKey = curStepIdx <= 0 ? 'S0' : c.steps[curStepIdx - 1].maskKey;
+      const showDelta = document.getElementById('chkDelta').checked && curStepIdx >= 1 && curStepIdx <= 5;
+      const showGT = document.getElementById('chkGT').checked;
+      const useLCCLeft = document.getElementById('chkLCC').checked;
+      const orient = getCaseOrient(c);
+      const shortName = c.title.split(' (')[0].split(' [')[0];
+      const zoomFactor = (160 / Math.max(c.zoomRect[2], 1)).toFixed(1);
+
+      document.getElementById('lblCanvasActive').textContent = st.title;
+      document.getElementById('lblZoomTitle').textContent = `${zoomFactor}× Surgical Defect ROI (<mri-cine-viewer>)`;
+
+      document.getElementById('mvStepMain').setFrame({
+        gray: dec.mri, w: 160, h: 160,
+        mask: dec.masks[st.maskKey], prevMask: dec.masks[prevKey], gtMask: dec.masks.GT,
+        showDelta, showGT, roiBox: c.zoomRect, orient,
+        tl1: shortName, tl2: c.modality,
+        tr1: st.code, tr2: `Dice ${st.dice.toFixed(4)}`,
+        brDefault: `Edit:${c.totalDiffPx}px · β0=${st.myo_cc}`,
+      });
+
+      document.getElementById('mvStepZoom').setFrame({
+        gray: dec.mri, w: 160, h: 160,
+        mask: dec.masks[st.maskKey], prevMask: dec.masks[prevKey], gtMask: dec.masks.GT,
+        showDelta, showGT, cropRect: c.zoomRect, orient,
+        tl1: `${zoomFactor}× DEFECT ROI`, tl2: shortName,
+        tr1: st.code, tr2: `+${st.step_added_px}/-${st.step_purged_px}px`,
+        brDefault: 'Hover for MRI I',
+      });
+      document.getElementById('lblDeltaPixels').textContent =
+        `Step: +${st.step_added_px} Gold | -${st.step_purged_px} Magenta (Cum. ${st.cum_added_px + st.cum_purged_px} px)`;
+
+      const leftMask = useLCCLeft ? dec.masks.LCC : dec.masks.S0;
+      const splitPct = Number(document.getElementById('rngSplit').value);
+      document.getElementById('lblSplitTitle').textContent = useLCCLeft
+        ? `Split: Blind LCC (${c.diceLCC.toFixed(3)}) vs. Active`
+        : `Split: Base S0 (${c.diceInit.toFixed(3)}) vs. Active`;
+
+      document.getElementById('mvStepSplit').setFrame({
+        gray: dec.mri, w: 160, h: 160,
+        mask: dec.masks[st.maskKey], leftMask, splitPct,
+        prevMask: null, gtMask: dec.masks.GT,
+        showDelta: false, showGT, orient,
+        tl1: useLCCLeft ? 'L: Blind LCC' : 'L: Base S0', tl2: 'Drag Curtain',
+        tr1: `R: ${st.code}`, tr2: `${splitPct}% Split`,
+        brDefault: `${c.diceInit.toFixed(3)} → ${st.dice.toFixed(3)}`,
+      });
+
+      document.getElementById('badgeStepCode').textContent = st.code;
+      document.getElementById('boxOpCall').textContent = st.opCall;
+      document.getElementById('boxStepDesc').textContent = st.desc;
+
+      const dGain = (st.dice - c.diceInit) * 100.0;
+      document.getElementById('kpiDice').textContent = `${st.dice.toFixed(4)} (${dGain >= 0 ? '+' : ''}${dGain.toFixed(2)}%)`;
+      document.getElementById('kpiHD95').textContent = `${st.hd95.toFixed(2)} px`;
+      const ccEl = document.getElementById('kpiCC');
+      ccEl.textContent = `CC = ${st.myo_cc} ${st.myo_cc === 1 ? '✓' : '✗'}`;
+      ccEl.className = `text-base font-bold font-mono ${st.myo_cc === 1 ? 'text-emerald-400' : 'text-rose-400'}`;
+      const lkEl = document.getElementById('kpiLeak');
+      lkEl.textContent = `${st.touch_px}px / ${c.totalDiffPx}px`;
+      lkEl.className = `text-sm font-bold font-mono ${st.touch_px === 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+      drawStepDiceChart(c);
+    }
+
+    function drawStepDiceChart(c) {
+      const cv = document.getElementById('cvDiceTraj');
+      const ctx = cv.getContext('2d');
+      const W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      const isLight = document.documentElement.classList.contains('light');
+      const axisCol = isLight ? '#64748b' : '#94a3b8';
+
+      const vals = c.steps.map(s => s.dice);
+      const allV = [...vals, c.diceLCC];
+      const minV = Math.max(0, Math.min(...allV) - 0.015);
+      const maxV = Math.min(1.0, Math.max(...allV) + 0.015);
+      const padL = 40, padR = 14, padT = 14, padB = 20;
+      const pw = W - padL - padR, ph = H - padT - padB;
+      const toX = i => padL + (i / (vals.length - 1)) * pw;
+      const toY = v => padT + (1 - (v - minV) / Math.max(maxV - minV, 1e-4)) * ph;
+
+      const yLcc = toY(c.diceLCC);
+      ctx.save();
+      ctx.strokeStyle = '#f87171'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(padL, yLcc); ctx.lineTo(W - padR, yLcc); ctx.stroke();
+      ctx.restore();
+
+      ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      vals.forEach((v, i) => { const x = toX(i), y = toY(v); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+      ctx.stroke();
+
+      vals.forEach((v, i) => {
+        const x = toX(i), y = toY(v);
+        ctx.fillStyle = i === curStepIdx ? '#facc15' : '#10b981';
+        ctx.beginPath(); ctx.arc(x, y, i === curStepIdx ? 5.2 : 3.2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = axisCol; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(c.steps[i].code.replace('FinalGT', 'GT'), x, H - 5);
+      });
+      ctx.fillStyle = axisCol; ctx.font = '10px monospace'; ctx.textAlign = 'right';
+      ctx.fillText(maxV.toFixed(3), padL - 4, padT + 6);
+      ctx.fillText(minV.toFixed(3), padL - 4, padT + ph);
+    }
+
+    // =====================================================================
+    // TAB 2: DEDICATED 9-CASE SURGICAL FINE-REFINEMENT GALLERY
+    // =====================================================================
+    let fineCardsBuilt = false;
+
+    async function renderFineGallery() {
+      const fineCases = DATA.cases.map((c, idx) => ({ c, idx })).filter(x => x.c.category === 'fine');
+      const grid = document.getElementById('fineGrid');
+      if (!fineCardsBuilt) {
+        grid.innerHTML = fineCases.map(({ c, idx }) => `
+          <div class="bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] hover:border-sky-500/60 rounded-2xl p-4 space-y-2.5 flex flex-col justify-between transition">
+            <div class="space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-sky-400 truncate">${c.title}</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold shrink-0">+${c.diceGainPct.toFixed(2)}%</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 text-xs font-mono text-[var(--muted-foreground,#94a3b8)]">
+                <span>Dice: <strong>${c.diceInit.toFixed(4)} &rarr; ${c.diceFinal.toFixed(4)}</strong></span>
+                <span>·</span>
+                <span>HD95: <strong>${c.hd95Init.toFixed(1)} &rarr; ${c.hd95Final.toFixed(2)}px</strong></span>
+                <span>·</span>
+                <span class="text-amber-400">Only ${c.totalDiffPx} px edited</span>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-2.5 py-1">
+              <div class="flex flex-col items-center gap-1">
+                <mri-cine-viewer id="fvFull_${c.id}" sync-group="fine_${c.id}" size="166"></mri-cine-viewer>
+                <span class="text-xs text-[var(--muted-foreground,#94a3b8)]">Full Real MRI Slice</span>
+              </div>
+              <div class="flex flex-col items-center gap-1">
+                <mri-cine-viewer id="fvZoom_${c.id}" sync-group="fine_${c.id}" size="166" lock-roi="true"></mri-cine-viewer>
+                <span class="text-xs text-amber-400 font-semibold">3.2&times; Surgical Defect ROI</span>
+              </div>
+            </div>
+
+            <p class="text-xs text-[var(--muted-foreground,#94a3b8)] leading-snug">${c.clinicalNote}</p>
+
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-[var(--border,#1e293b)]">
+              <span class="text-xs font-mono text-sky-400">${c.isReal4DCine ? '★ Real 30f 4D Cine Included' : '2D+T Cine Cycle Included'}</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="openFineInWorkstation(${idx}, 'step')" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold">5-Step Trace &rarr;</button>
+                <button onclick="openFineInWorkstation(${idx}, 'cine')" class="px-2.5 py-1 rounded-lg border border-sky-500/50 text-sky-400 hover:bg-sky-500/15 text-xs font-bold">2D+T</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        fineCardsBuilt = true;
+      }
+
+      for (const { c, idx } of fineCases) {
+        const dec = await ensureCaseDecoded(idx, false);
+        const mKey = fineShowAfter ? 'S5' : 'S0';
+        const dVal = fineShowAfter ? c.diceFinal : c.diceInit;
+        const stageLbl = fineShowAfter ? 'AFTER S5' : 'BEFORE S0';
+        const orient = getCaseOrient(c);
+
+        const elFull = document.getElementById(`fvFull_${c.id}`);
+        const elZoom = document.getElementById(`fvZoom_${c.id}`);
+        if (elFull && elZoom) {
+          elFull.setFrame({
+            gray: dec.mri, w: 160, h: 160,
+            mask: dec.masks[mKey], prevMask: fineShowAfter ? dec.masks.S0 : null, gtMask: dec.masks.GT,
+            showDelta: fineShowAfter, showGT: true, roiBox: c.zoomRect, orient,
+            tl1: c.slug, tl2: '', tr1: stageLbl, tr2: '', brDefault: `Dice ${dVal.toFixed(4)}`,
+          });
+          elZoom.setFrame({
+            gray: dec.mri, w: 160, h: 160,
+            mask: dec.masks[mKey], prevMask: fineShowAfter ? dec.masks.S0 : null, gtMask: dec.masks.GT,
+            showDelta: fineShowAfter, showGT: true, cropRect: c.zoomRect, orient,
+            tl1: '3.2× ROI', tl2: '', tr1: stageLbl, tr2: '', brDefault: `${c.totalDiffPx}px Edit`,
+          });
+        }
+      }
+
+      document.getElementById('btnFineBlink').innerHTML = fineBlinking
+        ? `&#9208; Auto-Blink: ${fineShowAfter ? 'Polished S5 (+Diff)' : 'Before S0'}`
+        : `&#9654; Resume Auto-Blink`;
+    }
+
+    function toggleFineBlink() {
+      fineBlinking = !fineBlinking;
+      renderFineGallery();
+    }
+    function setFineStageManual(stage) {
+      fineBlinking = false;
+      fineShowAfter = (stage === 'S5');
+      renderFineGallery();
+    }
+    function openFineInWorkstation(idx, targetTab) {
+      curCaseIdx = idx;
+      curStepIdx = 0;
+      curCineFrame = 0;
+      renderCasePills();
+      switchTab(targetTab);
+      window.scrollTo({ top: 260, behavior: 'smooth' });
+    }
+
+    // =====================================================================
+    // TAB 3: 2D+T BEATING-HEART CINE
+    // =====================================================================
+    async function renderCineView() {
+      const c = DATA.cases[curCaseIdx];
+      if (!c) return;
+      const dec = await ensureCaseDecoded(curCaseIdx, true);
+      const cine = dec.cine;
+      if (!cine || !cine.length) return;
+
+      curCineFrame = curCineFrame % cine.length;
+      const fr = cine[curCineFrame];
+      const orient = getCaseOrient(c);
+      const shortName = c.title.split(' (')[0].split(' [')[0];
+      const tTag = `T:${String(curCineFrame + 1).padStart(2, '0')}/${cine.length}`;
+
+      document.getElementById('caseSubtitle').textContent = c.subtitle;
+      document.getElementById('clinicalNoteBar').innerHTML = `<strong class="text-emerald-400">Clinical Rationale:</strong> ${c.clinicalNote}`;
+      document.getElementById('rngCineFrame').max = cine.length - 1;
+      document.getElementById('rngCineFrame').value = curCineFrame;
+      document.getElementById('lblCineType').textContent = c.cineType;
+      document.getElementById('lblCineFrame').textContent = `Frame ${String(curCineFrame + 1).padStart(2, '0')}/${cine.length} (${fr.phase})`;
+
+      document.getElementById('mvCineRaw').setFrame({
+        gray: fr.imArr, w: 136, h: 136, mask: null, orient,
+        tl1: shortName, tl2: 'RAW 2D+T MRI', tr1: tTag, tr2: fr.phase, brDefault: 'Pure MRI',
+      });
+      document.getElementById('mvCineBase').setFrame({
+        gray: fr.imArr, w: 136, h: 136, mask: fr.baseArr, gtMask: fr.gtArr, showGT: false, orient,
+        tl1: `Base (${c.segmenter})`, tl2: c.modality, tr1: tTag, tr2: `β0=${fr.myo_cc_base}`,
+        brDefault: `LV:${Math.round(fr.lv_base)}px`,
+      });
+      document.getElementById('mvCineMas').setFrame({
+        gray: fr.imArr, w: 136, h: 136, mask: fr.masArr, gtMask: fr.gtArr, showGT: true, orient,
+        tl1: 'MAS-Heart 2D+T', tl2: 'Zero-SAM + GT', tr1: tTag, tr2: `β0=${fr.myo_cc_mas} ✓`,
+        brDefault: `LV:${Math.round(fr.lv_mas)}px`,
+      });
+
+      document.getElementById('lblCineBaseStat').textContent =
+        `MyoCC: ${fr.myo_cc_base} ${fr.myo_cc_base === 1 ? '' : '(BROKEN)'} | LV: ${Math.round(fr.lv_base)}px`;
+      document.getElementById('lblCineMasStat').textContent =
+        `MyoCC: ${fr.myo_cc_mas} (Valid β0=1) | LV: ${Math.round(fr.lv_mas)}px`;
+
+      drawCineWaveChart(cine, curCineFrame);
+    }
+
+    function drawCineWaveChart(cine, activeIdx) {
+      const cv = document.getElementById('cvCineWave');
+      const ctx = cv.getContext('2d');
+      const W = cv.width, H = cv.height;
+      ctx.clearRect(0, 0, W, H);
+      const isLight = document.documentElement.classList.contains('light');
+      const axisCol = isLight ? '#475569' : '#94a3b8';
+
+      const maxGT = Math.max(...cine.map(x => x.lv_gt), 1);
+      const bCurve = cine.map(x => (x.lv_base / maxGT) * 100);
+      const mCurve = cine.map(x => (x.lv_mas / maxGT) * 100);
+      const gCurve = cine.map(x => (x.lv_gt / maxGT) * 100);
+      const allV = [...bCurve, ...mCurve, ...gCurve];
+      const minV = Math.max(0, Math.min(...allV) - 6), maxV = Math.max(...allV) + 6;
+      const padL = 34, padR = 10, padT = 12, padB = 22;
+      const pw = W - padL - padR, ph = H - padT - padB;
+      const toX = i => padL + (i / Math.max(cine.length - 1, 1)) * pw;
+      const toY = v => padT + (1 - (v - minV) / Math.max(maxV - minV, 1)) * ph;
+
+      function plotLine(arr, color, lw, dashed = false) {
+        ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = lw;
+        if (dashed) ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        arr.forEach((v, i) => { const x = toX(i), y = toY(v); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+        ctx.stroke(); ctx.restore();
+      }
+      plotLine(gCurve, isLight ? '#0f172a' : '#f8fafc', 1.7, true);
+      plotLine(bCurve, '#f87171', 1.7, false);
+      plotLine(mCurve, '#10b981', 2.5, false);
+
+      const ax = toX(activeIdx);
+      ctx.save(); ctx.strokeStyle = '#facc15'; ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(ax, padT); ctx.lineTo(ax, padT + ph); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath(); ctx.arc(ax, toY(mCurve[activeIdx]), 4.5, 0, Math.PI * 2); ctx.fill();
+
+      ctx.fillStyle = axisCol; ctx.font = '10px monospace'; ctx.textAlign = 'right';
+      ctx.fillText(`${Math.round(maxV)}%`, padL - 4, padT + 8);
+      ctx.fillText(`${Math.round(minV)}%`, padL - 4, padT + ph);
+      ctx.textAlign = 'center';
+      ctx.fillText('ED', padL + 8, H - 5);
+      ctx.fillText('ES', padL + pw * 0.42, H - 5);
+      ctx.fillText('ED', W - padR - 8, H - 5);
+    }
+
+    // =====================================================================
+    // TAB 4: IN-MEMORY NIFTI-1 + @niivue/niivue WEBGL COMPONENT
+    // =====================================================================
+    let nvInstance = null, nvLoadedCaseId = null;
+
+    function buildNifti1Url(slicesUint8, nx, ny, nz, pixdimZ = 2.5) {
+      const voxOffset = 352;
+      const buf = new ArrayBuffer(voxOffset + nx * ny * nz);
+      const dv = new DataView(buf);
+      dv.setInt32(0, 348, true);
+      dv.setInt16(40, 3, true);
+      dv.setInt16(42, nx, true);
+      dv.setInt16(44, ny, true);
+      dv.setInt16(46, nz, true);
+      dv.setInt16(48, 1, true);
+      dv.setInt16(70, 2, true);
+      dv.setInt16(72, 8, true);
+      dv.setFloat32(76, 1.0, true);
+      dv.setFloat32(80, 1.25, true);
+      dv.setFloat32(84, 1.25, true);
+      dv.setFloat32(88, pixdimZ, true);
+      dv.setFloat32(108, voxOffset, true);
+      dv.setFloat32(112, 1.0, true);
+      dv.setInt16(252, 1, true);
+      dv.setFloat32(280, -1.25, true);
+      dv.setFloat32(300, -1.25, true);
+      dv.setFloat32(320, pixdimZ, true);
+      const u8 = new Uint8Array(buf);
+      u8[344] = 110; u8[345] = 43; u8[346] = 49; u8[347] = 0;
+      for (let z = 0; z < nz; z++) {
+        const src = slicesUint8[z];
+        const zOff = voxOffset + z * nx * ny;
+        for (let i = 0; i < nx * ny; i++) u8[zOff + i] = src[i];
+      }
+      return URL.createObjectURL(new Blob([buf], { type: 'application/octet-stream' }));
+    }
+
+    async function renderNiiVueTab() {
+      const statusEl = document.getElementById('niivueStatus');
+      const c = DATA.cases[curCaseIdx];
+      if (!c) return;
+      if (!window.niivue || !window.niivue.Niivue) {
+        statusEl.textContent = 'Note: @niivue/niivue CDN is still loading or offline — Tabs 1, 2 & 3 (<mri-cine-viewer>) work 100% offline!';
+        return;
+      }
+      const dec = await ensureCaseDecoded(curCaseIdx, true);
+      if (!nvInstance) {
+        nvInstance = new window.niivue.Niivue({
+          backColor: [0.02, 0.03, 0.05, 1],
+          show3Dcrosshair: true,
+          crosshairColor: [0.22, 0.74, 0.97, 0.85],
+          isRadiologicalConvention: true,
+        });
+        await nvInstance.attachTo('niivueCanvas');
+      }
+      if (nvLoadedCaseId === c.id) return;
+      nvLoadedCaseId = c.id;
+      const nz = dec.cine.length;
+      const mriUrl = buildNifti1Url(dec.cine.map(f => f.imArr), 136, 136, nz, 2.8);
+      const segUrl = buildNifti1Url(dec.cine.map(f => f.masArr), 136, 136, nz, 2.8);
+      await nvInstance.loadVolumes([
+        { url: mriUrl, name: `${c.id}_cine_mri.nii`, colormap: 'gray', opacity: 1.0 },
+        { url: segUrl, name: `${c.id}_mas_seg.nii`, colormap: 'warm', opacity: 0.50 },
+      ]);
+      nvInstance.setSliceType(nvInstance.sliceTypeMultiplanar);
+      statusEl.textContent = `Loaded Real 3D Spatiotemporal NIfTI (136×136×${nz} frames) for ${c.title} in @niivue/niivue WebGL!`;
+    }
+
+    function setNiiSliceType(kind) {
+      if (!nvInstance) return;
+      if (kind === 'axial') nvInstance.setSliceType(nvInstance.sliceTypeAxial);
+      else if (kind === 'render') nvInstance.setSliceType(nvInstance.sliceTypeRender);
+      else nvInstance.setSliceType(nvInstance.sliceTypeMultiplanar);
+    }
+    function setNiiSegOpacity(val) {
+      if (nvInstance && nvInstance.volumes.length > 1) nvInstance.setOpacity(1, Number(val) / 100.0);
+    }
+
+    async function selectCase(idx) {
+      curCaseIdx = idx; curStepIdx = 0; curCineFrame = 0; nvLoadedCaseId = null;
+      renderCasePills();
+      if (activeTab === 'step') renderStepView();
+      if (activeTab === 'cine') renderCineView();
+      if (activeTab === 'nii') renderNiiVueTab();
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      ['step', 'fine', 'cine', 'nii', 'gif'].forEach(t => {
+        const cap = t.charAt(0).toUpperCase() + t.slice(1);
+        document.getElementById('panel' + cap).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('tabBtn' + cap);
+        btn.className = t === tab
+          ? 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 text-white shadow'
+          : 'px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[var(--card,#111827)] border border-[var(--border,#1e293b)] text-[var(--muted-foreground,#94a3b8)] hover:text-[var(--foreground,#f1f5f9)]';
+      });
+      if (tab === 'step') renderStepView();
+      if (tab === 'fine') renderFineGallery();
+      if (tab === 'cine') renderCineView();
+      if (tab === 'nii') renderNiiVueTab();
+    }
+
+    function nextStep() {
+      const c = DATA.cases[curCaseIdx];
+      if (!c) return;
+      curStepIdx = (curStepIdx + 1) % c.steps.length;
+      renderStepView();
+    }
+    function prevStep() {
+      const c = DATA.cases[curCaseIdx];
+      if (!c) return;
+      curStepIdx = (curStepIdx - 1 + c.steps.length) % c.steps.length;
+      renderStepView();
+    }
+    function toggleStepPlay() {
+      stepPlaying = !stepPlaying;
+      document.getElementById('btnPlayStep').innerHTML = stepPlaying ? '&#9208; Pause Auto-Play' : '&#9654; Auto-Play Repair';
+    }
+    function toggleCinePlay() {
+      cinePlaying = !cinePlaying;
+      document.getElementById('btnPlayCine').innerHTML = cinePlaying ? '&#9208; Pause 2D+T Cine' : '&#9654; Play 2D+T Cine';
+    }
+    function scrubCineFrame(val) {
+      cinePlaying = false;
+      document.getElementById('btnPlayCine').innerHTML = '&#9654; Play 2D+T Cine';
+      curCineFrame = Number(val);
+      renderCineView();
+    }
+    function updateCineFps() {
+      cineFps = Number(document.getElementById('rngCineFps').value);
+      document.getElementById('lblCineFps').textContent = `${cineFps} fps`;
+      restartCineTimer();
+    }
+    function restartCineTimer() {
+      if (cineTimer) clearInterval(cineTimer);
+      cineTimer = setInterval(() => {
+        if (cinePlaying && activeTab === 'cine') {
+          curCineFrame++;
+          renderCineView();
+        }
+      }, Math.round(1000 / cineFps));
+    }
+
+    window.addEventListener('themechange', () => {
+      if (activeTab === 'step') renderStepView();
+      if (activeTab === 'cine') renderCineView();
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      renderCasePills();
+      switchTab('step');
+      await selectCase(0);
+      stepTimer = setInterval(() => {
+        if (stepPlaying && activeTab === 'step') nextStep();
+      }, 1350);
+      fineTimer = setInterval(() => {
+        if (fineBlinking && activeTab === 'fine') {
+          fineShowAfter = !fineShowAfter;
+          renderFineGallery();
+        }
+      }, 1450);
+      restartCineTimer();
+    });
+  </script>
+</body>
+</html>
